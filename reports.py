@@ -26,9 +26,19 @@ class AverageRatingReport:
             brand = item.get('brand', '').strip()
             rating_str = item.get('rating', '0')
             
+            # Пропускаем записи с пустым брендом - это невалидные данные
+            if not brand:
+                continue
+            
             try:
                 rating = float(rating_str)
             except ValueError:
+                # Пропускаем невалидные рейтинги вместо падения
+                continue
+            
+            # Валидация: рейтинг должен быть в диапазоне 0-5
+            # Это стандартный диапазон для рейтингов товаров
+            if rating < 0 or rating > 5:
                 continue
             
             if brand not in brand_ratings:

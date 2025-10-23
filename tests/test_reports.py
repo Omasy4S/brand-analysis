@@ -89,6 +89,42 @@ class TestAverageRatingReport:
         
         # (4.55 + 4.54) / 2 = 4.545, округляется до 4.54
         assert result[0]['rating'] == 4.54
+    
+    def test_empty_brand(self):
+        """
+        Проверка обработки пустых брендов.
+        Записи с пустым брендом должны пропускаться как невалидные данные.
+        """
+        data = [
+            {'name': 'product1', 'brand': '', 'price': '999', 'rating': '4.5'},
+            {'name': 'product2', 'brand': 'apple', 'price': '899', 'rating': '4.7'},
+        ]
+        
+        report = AverageRatingReport()
+        result = report.generate(data)
+        
+        assert len(result) == 1
+        assert result[0]['brand'] == 'apple'
+    
+    def test_rating_out_of_range(self):
+        """
+        Проверка валидации диапазона рейтингов.
+        Рейтинги должны быть в диапазоне 0-5 (стандарт для товаров).
+        Значения вне диапазона пропускаются.
+        """
+        data = [
+            {'name': 'product1', 'brand': 'apple', 'price': '999', 'rating': '-1'},  # Отрицательный
+            {'name': 'product2', 'brand': 'apple', 'price': '899', 'rating': '6.0'},  # Больше 5
+            {'name': 'product3', 'brand': 'samsung', 'price': '1199', 'rating': '4.8'},  # Валидный
+        ]
+        
+        report = AverageRatingReport()
+        result = report.generate(data)
+        
+        # Только samsung должен попасть в результат
+        assert len(result) == 1
+        assert result[0]['brand'] == 'samsung'
+        assert result[0]['rating'] == 4.8
 
 
 class TestGetReport:

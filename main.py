@@ -37,6 +37,13 @@ def read_csv_files(file_paths: List[str]) -> List[Dict[str, str]]:
                 reader = csv.DictReader(f)
                 data = list(reader)
                 all_data.extend(data)
+        except UnicodeDecodeError:
+            # Обрабатываем проблемы с кодировкой отдельно для понятного сообщения
+            print(f"Ошибка: файл {file_path} имеет неверную кодировку. Ожидается UTF-8")
+            sys.exit(1)
+        except PermissionError:
+            print(f"Ошибка: нет доступа к файлу {file_path}")
+            sys.exit(1)
         except Exception as e:
             print(f"Ошибка при чтении файла {file_path}: {e}")
             sys.exit(1)
